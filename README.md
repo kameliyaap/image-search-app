@@ -1,16 +1,61 @@
-# React + Vite
+# ImageSearch
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Приложение за търсене на снимки през Unsplash API.
 
-Currently, two official plugins are available:
+## Как подходих
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Преди да пиша код, направих user flow диаграми и wireframes — в тях реших състоянията, routes-овете и логиката на auth-а. Всичко е в линка към Figma отдолу.
 
-## React Compiler
+**Дизайн:** https://www.figma.com/design/BrLH95yov8qNMtyz6CBeJi/ImageSearch?node-id=0-1&t=HeuurfDzZer8At78-1
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Стартиране
 
-## Expanding the ESLint configuration
+Приложението е качено тук: https://image-search-app-eosin.vercel.app — работи директно, без настройки.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Ако искате да го пуснете локално:**
+
+Първо ви трябва Unsplash Access Key от [unsplash.com/developers](https://unsplash.com/developers) (New Application). Ключът не е в репото, защото API ключове не се качват в Git.
+
+Създайте `.env` файл в корена:
+VITE_UNSPLASH_ACCESS_KEY=вашият_ключ
+
+После:
+
+```bash
+npm install
+npm run dev
+```
+
+## Технологии
+
+React + Vite, React Router за навигацията, чист CSS с CSS variables (design tokens). Единствената външна библиотека е `react-router-dom` — за този мащаб не ми трябваше нищо друго. State-ът е с useState, а за езика ползвам Context.
+
+Auth-ът и запазените снимки живеят в localStorage, тъй като нямаме backend.
+
+## Какво прави
+
+Регистрация, вход, изход. Търсене с филтри (ориентация, цвят, подредба). Loading, error и empty състояния. Работи на телефон.
+
+Плюс: модал за преглед с автор, харесвания, дата и изтегляне; запазване на снимки; превключване BG/EN; и превод на заявките — ако търсите "залез" на кирилица, приложението го превежда на "sunset", защото Unsplash индексира на английски.
+
+## Няколко решения
+
+**Два ключа в localStorage** — един за акаунта, един за сесията. Отначало исках да е един, но осъзнах, че при logout трябва да се трие само сесията, иначе изтривам и акаунта.
+
+**Различни error съобщения** — проверявам дали няма интернет, дали не съм ударила лимита (demo ключът дава 50 заявки на час — разбрах го докато тествам 😄), или е друго.
+
+**Търсенето става при натискане на бутона**, не докато пишеш. Live search изисква debounce и повече заявки без реална полза тук.
+
+**Ако преводът се провали, търся с оригиналната дума.** Преводът е екстра и не бива да чупи търсенето.
+
+## Кое ми беше най-трудно
+
+useEffect. В един момент приложението почна да търси при всяка буква — оказа се, че `query` ми беше в dependency array-а. Оправих го с отделен брояч, който се увеличава само при submit. Това ми беше и най-полезното, което научих.
+
+Второто беше как да разделя логиката от компонентите — направих `auth.js`, `unsplash.js` и `favorites.js` като отделни модули, които не знаят нищо за React. Компонентите просто ги викат.
+
+## За AI
+
+Ползвах AI активно — за дизайна, за CSS-а, за обяснения на React концепции, които не знаех, и за дебъгване.
+
+Работих итеративно — първо решавах какво трябва да прави приложението и как (потоците, състоянията, структурата на localStorage), после го изграждах стъпка по стъпка. Където не разбирах нещо, първо търсех обяснение на концепцията, а после я прилагах.
