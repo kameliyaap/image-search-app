@@ -17,7 +17,6 @@ export async function translateToEnglish(text) {
 
     return { text: translated, translated: true, original: text };
   } catch {
-    // Ако преводът се провали — търсим с оригинала
     return { text, translated: false };
   }
 }
